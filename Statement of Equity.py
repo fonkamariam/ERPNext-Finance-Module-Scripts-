@@ -47,11 +47,11 @@ def execute(filters=None):
                 end_d = end
     
             # LABEL FIX (ERP STYLE)
-            start_label = month_map[start.month - 1] + str(start.year)[-2:]
-            end_label   = month_map[end_d.month - 1] + str(end_d.year)[-2:]
+            start_label = month_map[start.month - 1] + str(start.year)
+            end_label   = month_map[end_d.month - 1] + str(end_d.year)
     
             if periodicity == "Monthly":
-                label = month_map[start.month - 1] + " " + str(start.year)[-2:]
+                label = month_map[start.month - 1] + " " + str(start.year)
             else:
                 label = start_label + "-" + end_label
     
