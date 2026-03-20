@@ -104,7 +104,7 @@ def execute(filters=None):
             if keyword_filters:
                 if not any(kw in account_name.lower() for kw in keyword_filters):
                     continue
-            row = {"account": account_name}
+            row = {"account": account_name, "account_name": acc.name}
             row_total = 0
             has_value = False
             for i, p in enumerate(periods):
@@ -173,7 +173,7 @@ def execute(filters=None):
     net_income_section = []
     for r in income_rows + expense_rows:
         # Keep indent for child rows
-        net_row = {"account": r["account"], "total": r.get("total", 0), "indent": 1}
+        net_row = {"account": r["account"],"account_name": r.get("account_name"), "total": r.get("total", 0), "indent": 1}
         # Add dynamic period columns
         for k in r:
             if k.startswith("p"):
@@ -183,6 +183,7 @@ def execute(filters=None):
     net_income_total = net_income_total - expense_total
     data.append({"account": "<b>Net Income</b>", "total": net_income_total, "indent": 0})
     data.extend(net_income_section)
+
     # ── 6. Dividends ────────────────────────────────────────────────────────
     dividends_rows = build_rows(equity_accounts, ["dividend", "drawing", "distribution", "withdrawal", "owner"], None)[0]
     dividends_total = build_rows(equity_accounts, ["dividend", "drawing", "distribution", "withdrawal", "owner"], None)[1]
