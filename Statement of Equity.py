@@ -149,7 +149,10 @@ def execute(filters=None):
     
     
     data.append({"account": "<b>Beginning Retained Earnings</b>", "total": beginning_total, "indent": 0})
-    data.extend(beginning_rows)
+    # Child rows now with indent
+    for row in beginning_rows:
+        row["indent"] = 1
+        data.append(row)
 
     # ── 5. Net Income ────────────────────────────────────────────────────────
     income_accounts = frappe.db.get_all("Account",
@@ -167,17 +170,26 @@ def execute(filters=None):
     expense_total = build_rows(expense_accounts, income_expense="Expense")[1]
 
     # Combine Net Income
-    net_income_section = [{"account": r["account"], **{k: r[k] for k in r if k.startswith("p")}, "total": r["total"]} for r in income_rows + expense_rows]
+    net_income_section = []
+    for r in income_rows + expense_rows:
+        # Keep indent for child rows
+        net_row = {"account": r["account"], "total": r.get("total", 0), "indent": 1}
+        # Add dynamic period columns
+        for k in r:
+            if k.startswith("p"):
+                net_row[k] = r[k]
+        net_income_section.append(net_row)
+    
     net_income_total = net_income_total - expense_total
     data.append({"account": "<b>Net Income</b>", "total": net_income_total, "indent": 0})
     data.extend(net_income_section)
-
     # ── 6. Dividends ────────────────────────────────────────────────────────
     dividends_rows = build_rows(equity_accounts, ["dividend", "drawing", "distribution", "withdrawal", "owner"], None)[0]
     dividends_total = build_rows(equity_accounts, ["dividend", "drawing", "distribution", "withdrawal", "owner"], None)[1]
     data.append({"account": "<b>Dividends</b>", "total": -dividends_total, "indent": 0})
-    data.extend(dividends_rows)
-
+    for row in dividends_rows:
+        row["indent"] = 1
+        data.append(row)
     # ── 7. Ending Retained Earnings ─────────────────────────────────────────
     calculated_ending = beginning_total + net_income_total - dividends_total
     data.append({"account": "<b>Ending Retained Earnings (calculated)</b>", "total": calculated_ending, "indent": 0})
@@ -273,4 +285,3 @@ def execute(filters=None):
 res = execute(filters)
 
 data = res[0], res[1], res[2], res[3], res[4]
-
