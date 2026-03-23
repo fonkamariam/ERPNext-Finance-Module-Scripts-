@@ -11,6 +11,8 @@ def execute(filters=None):
         pass
     if not from_date or not to_date:
         frappe.throw("From Date and To Date are required")
+    if from_date > to_date:
+        frappe.throw("From Date cannot be greater than To Date")
     
 
     # -----------------------------
